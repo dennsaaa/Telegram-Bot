@@ -1,9 +1,36 @@
 // ============================================
 // BOT TELEGRAM DennsaaXXX Multi Bot
-// Entry point utama — daftarkan semua plugin di sini
+// Entry point utama – daftarkan semua plugin di sini
 // Jalankan: node index.js
 // ============================================
 require('dotenv').config();
+
+// ---------- TAMBAHKAN EXPRESS & KEEP-ALIVE DI SINI ----------
+const express = require('express');
+const axios = require('axios');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.status(200).send('🟢 DennsaaaBot is Online 24/7!');
+});
+
+app.listen(PORT, () => {
+  console.log(`📡 Server Keep-Alive aktif di port ${PORT}`);
+});
+
+// Backup Self-Ping
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
+if (RENDER_URL) {
+  setInterval(() => {
+    axios.get(RENDER_URL).catch(() => {});
+  }, 10 * 60 * 1000);
+}
+
+// Global Process Guard (Cegah crash)
+process.on('uncaughtException', (err) => console.error('[FATAL UNCAUGHT]', err.message));
+process.on('unhandledRejection', (reason) => console.error('[FATAL REJECTION]', reason));
+// -------------------------------------------------------------
 
 const { Telegraf, Markup } = require('telegraf');
 const { BOT_TOKEN, OWNER_NAME } = require('./config');
@@ -17,7 +44,6 @@ if (!BOT_TOKEN) {
   console.error('❌ BOT_TOKEN belum diisi di .env! Copy .env.example jadi .env lalu isi token.');
   process.exit(1);
 }
-
 // handlerTimeout 3 menit: download video lambat tidak boleh dipotong di tengah proses
 const bot = new Telegraf(BOT_TOKEN, { handlerTimeout: 180_000 });
 
